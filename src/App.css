@@ -7,10 +7,18 @@
   padding: 0;
   box-sizing: border-box;
 }
-.css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input {
+/* .css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input {
   padding: 5px 10px !important;
   background:#F2F4F8 !important;
   border-radius:6px !important;
   color:#2E333B !important;
+  font-size: 14px !important;
+} */
+
+.MuiInputBase-input.MuiOutlinedInput-input {
+  padding: 5px 10px !important;
+  background: #F2F4F8 !important;
+  border-radius: 6px !important;
+  color: #2E333B !important;
   font-size: 14px !important;
 }
