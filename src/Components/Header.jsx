@@ -14,10 +14,12 @@ const Header = () => {
         return new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     }
 
+    useEffect(() => {
+        setCurrentList(webinarList)
+    }, [webinarList])
     // Function to apply search on the current list
     const handleSearch = () => {
         let filteredWebinars = currentList;
-
         filteredWebinars = filteredWebinars.filter(item =>
             (item.topicName && item.topicName.toLowerCase().includes(query.toLowerCase())) ||
             (item.subtopicName && item.subtopicName.toLowerCase().includes(query.toLowerCase())) ||
@@ -28,8 +30,6 @@ const Header = () => {
             (item.day && item.day.toLowerCase().includes(query.toLowerCase())) ||
             (item.timeSlot && item.timeSlot.toLowerCase().includes(query.toLowerCase()))
         );
-
-
         setFilteredList(filteredWebinars);
     }
 
