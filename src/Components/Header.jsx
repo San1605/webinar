@@ -10,6 +10,9 @@ const Header = () => {
 
     const [currentList, setCurrentList] = useState(webinarList); // State for the list currently being viewed
 
+    const getFormattedDate = (date) => {
+        return new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    }
 
     // Function to apply search on the current list
     const handleSearch = () => {
@@ -21,8 +24,9 @@ const Header = () => {
             (item.oratorName && item.oratorName.toLowerCase().includes(query.toLowerCase())) ||
             (item.oratorCompany && item.oratorCompany.toLowerCase().includes(query.toLowerCase())) ||
             (item.position && item.position.toLowerCase().includes(query.toLowerCase())) ||
-            (item.date && item.date.toLowerCase().includes(query.toLowerCase())) ||
-            (item.day && item.day.toLowerCase().includes(query.toLowerCase()))
+            (item.date && getFormattedDate(item.date).toLowerCase().includes(query.toLowerCase())) ||
+            (item.day && item.day.toLowerCase().includes(query.toLowerCase())) ||
+            (item.timeSlot && item.timeSlot.toLowerCase().includes(query.toLowerCase()))
         );
 
 
@@ -59,7 +63,7 @@ const Header = () => {
 
     return (
         <Box
-        className="HeaderBox"
+            className="HeaderBox"
             sx={{
                 display: 'flex',
                 alignItems: 'center',
