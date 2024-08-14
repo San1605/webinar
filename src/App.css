@@ -15,10 +15,17 @@
   font-size: 14px !important;
 } */
 
-.MuiInputBase-input.MuiOutlinedInput-input {
+.formBox .MuiInputBase-input.MuiOutlinedInput-input {
   padding: 5px 10px !important;
   background: #F2F4F8 !important;
-  border-radius: 6px !important;
+  border-radius: 10px !important;
   color: #2E333B !important;
   font-size: 14px !important;
+  fontSize:14px !important;
+  background:#F2F4F8 !important;
+
+}
+
+.HeaderBox .MuiInputBase-input.MuiOutlinedInput-input{
+  border-radius:12px !important;
 }

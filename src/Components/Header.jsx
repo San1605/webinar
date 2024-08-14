@@ -42,23 +42,24 @@ const Header = () => {
         setFilteredList(filteredWebinars); // This also updates the filtered list with the filter applied
     }
 
-     // Apply filter when selectedFilter changes
+    // Apply filter when selectedFilter changes
     useEffect(() => {
         handleFilter();
     }, [selectedFilter]);
 
-     // Apply search when query or currentList changes
+    // Apply search when query or currentList changes
     useEffect(() => {
         handleSearch();
     }, [query, currentList]);
 
 
-     // Get unique topics for the filter dropdown
+    // Get unique topics for the filter dropdown
 
     const uniqueTopics = ["All", ...new Set(webinarList.map(item => item.topicName))];
 
     return (
         <Box
+        className="HeaderBox"
             sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -66,18 +67,20 @@ const Header = () => {
                 p: 2,
                 gap: 2,
                 width: "100%",
-                px: 5
+                px: 5,
+                background: "white",
                 // padding: "2px 8px"
             }}
         >
-             {/* Search input field */}
+            {/* Search input field */}
             <TextField
                 variant="outlined"
                 placeholder="Search..."
                 size="small"
+                borderRadius={14}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                sx={{ width: "30%", minWidth: 200, borderRadius: "10px" }}
+                sx={{ width: "30%", minWidth: 200, borderRadius: "20px", backgroundColor: "white", padding: "5px" }}
                 InputProps={{
                     startAdornment: (
                         <InputAdornment position="start">
@@ -86,7 +89,7 @@ const Header = () => {
                     ),
                 }}
             />
-                 {/* Filter dropdown */}
+            {/* Filter dropdown */}
             <FormControl variant="outlined" size="small">
                 <InputLabel id="topics-label">Topics</InputLabel>
                 <Select
@@ -101,7 +104,7 @@ const Header = () => {
                         borderRadius: "10px"
                     }}
                 >
-                     {/* Map over unique topics to create dropdown menu items */}
+                    {/* Map over unique topics to create dropdown menu items */}
                     {uniqueTopics.map((topic, index) => (
                         <MenuItem key={index} value={topic}>{topic}</MenuItem>
                     ))}

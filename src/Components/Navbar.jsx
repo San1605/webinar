@@ -18,7 +18,7 @@ const Navbar = () => {
                     color: '#fff',
                     boxShadow: '0px 8px 20px -8px #0E51F1',
                     borderRadius: "10px",
-                    padding: "5px 10px",
+                    padding: "5px 20px",
                     fontSize: "15px",
                     fontWeight: 600,
                 }}

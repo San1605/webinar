@@ -1,40 +1,40 @@
 import React, { useContext, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
-import TextField from '@mui/material/TextField';
+import { Box, Button, Typography, Modal, TextField, IconButton } from '@mui/material';
 import details from "../assets/details.svg";
 import webinar from "../assets/webinar.svg";
 import { webinarContext } from '../Context/GlobalContext';
 import { formatTime12Hour, getDayFromDate, parseTime12Hour } from '../Utils/Config';
+import { v4 as uuidv4 } from 'uuid';
+import CloseIcon from '@mui/icons-material/Close';
+
 
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: '90%', sm: 600 },
-    maxHeight: '90vh',
+    width: { xs: '90%', sm: 700 },
+    maxHeight: '95vh',
     overflow: 'auto',
     bgcolor: 'background.paper',
     boxShadow: 24,
-    p: 4,
+    // px: 3,
+    py: 1,
     borderRadius: 2,
 };
 
 const Form = ({ open, setOpen, webinarData = {} }) => {
-      // Context for managing webinar list
+    // Context for managing webinar list
     const { setWebinarList, setFilteredList, webinarList } = useContext(webinarContext);
     // State for handling the instructor's image
     const [instructorImage, setInstructorImage] = useState(webinarData.image || null);
-   // Function to handle modal close
+    // Function to handle modal close
     const handleClose = () => setOpen(false);
 
     // State for storing form data
     const [webinarForm, setWebinarForm] = useState({
-        id: webinarData.id || Math.random(),
+        id: webinarData.id || uuidv4(),
         oratorName: webinarData.oratorName || "",
         oratorCompany: webinarData.oratorCompany || "",
         position: webinarData.position || "",
@@ -58,19 +58,41 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
         if (!webinarForm.topicName) tempErrors.topicName = "Topics are required";
         if (!webinarForm.subtopicName) tempErrors.subtopicName = "Webinar Title is required";
         if (!webinarForm.date) tempErrors.date = "Start Date is required";
-        if (!webinarForm.timeSlot) tempErrors.timeSlot = "Time Slot is required";
+        const [startTime, endTime] = webinarForm.timeSlot.split(" - ");
+        console.log(startTime, endTime)
+        if (!endTime || endTime === "" || endTime?.includes("NaN")) {
+            tempErrors.endTime = "End Time is required";
+        }
+        if (!startTime || startTime === "" || startTime?.includes("NaN")) {
+            tempErrors.startTime = "Start Time is required";
+        } else {
+            const startDateTime = new Date(`${webinarForm.date} ${parseTime12Hour(startTime)}`);
+            if (startDateTime < new Date()) {
+                tempErrors.startTime = "Start time cannot be in the past";
+            }
+        }
+
+        if (!endTime || endTime === "" || endTime?.includes("NaN")) {
+            tempErrors.endTime = "End Time is required";
+        } else if (startTime) {
+            const startDateTime = new Date(`${webinarForm.date} ${parseTime12Hour(startTime)}`);
+            const endDateTime = new Date(`${webinarForm.date} ${parseTime12Hour(endTime)}`);
+            if (endDateTime <= startDateTime) {
+                tempErrors.endTime = "End time must be after start time";
+            }
+        }
         setErrors(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
 
-     // Function to handle form submission
+    // Function to handle form submission
     const handleSave = () => {
         if (validate()) {
-             // Update webinar list with the new form data
+            // Update webinar list with the new form data
             const updatedList = webinarList.map(item =>
                 item.id === webinarForm.id ? webinarForm : item
             );
-             // Add new webinar if it does not already exist
+            // Add new webinar if it does not already exist
             if (!webinarData.id) {
                 updatedList.push(webinarForm);
             }
@@ -80,7 +102,7 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
         }
     };
 
-     // Dropzone configuration for handling image uploads
+    // Dropzone configuration for handling image uploads
     const { getRootProps, getInputProps } = useDropzone({
         accept: 'image/*',
         onDrop: (acceptedFiles) => {
@@ -97,18 +119,37 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
         >
-            <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
-                    {webinarData.id ? 'Edit Webinar' : 'Create Webinar'}
-                </Typography>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: "10px" }}>
-                    <img src={details} alt="Details Icon" style={{ marginRight: '8px', width: '24px', height: '24px' }} />
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Instructor Details</Typography>
+            <Box className="formBox" sx={style}>
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 3,
+                    pb: 0.5,
+                    px: 3,
+                    borderBottom: "1px solid #E3E7EC"
+                }}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ fontWeight: 600, fontSize: "18px" }}>
+                        {webinarData.id ? 'Edit Webinar' : 'Create Webinar'}
+                    </Typography>
+                    <IconButton
+                        aria-label="close"
+                        onClick={handleClose}
+                        sx={{
+                            color: (theme) => theme.palette.grey[500],
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
                 </Box>
 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 3, mb: 1, flexDirection: { xs: 'column', sm: 'row', width: "100%" } }}>
-                    <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'column', width: "70%" } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: "10px", px: 3 }}>
+                    <img src={details} alt="Details Icon" style={{ marginRight: '8px', width: '20px', height: '20px' }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#2E333B", fontSize: 15 }}>Instructor Details</Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-start', gap: 3, mb: 1, px: 3, ml: 5, flexDirection: { xs: 'row', sm: 'row', width: "90%" } }}>
+                    <Box sx={{ display: 'flex', height: "100%", gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'column', width: "50%" } }}>
                         <Box sx={{ flex: 1 }}>
                             <Typography variant="body2">Instructor Name*</Typography>
                             <TextField
@@ -133,60 +174,69 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                                 sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
                             />
                         </Box>
+                        {/* <Box sx={{ display: 'flex', gap: 2, mb: 1, px: 3, ml: 5, flexDirection: { xs: 'column', sm: 'row' } }}> */}
+                        <Box sx={{ flex: 1 }}>
+                            <Typography variant="body2">Instructor Company*</Typography>
+                            <TextField
+                                fullWidth
+                                placeholder="Type the instructor company"
+                                value={webinarForm.oratorCompany}
+                                onChange={(e) => setWebinarForm({ ...webinarForm, oratorCompany: e.target.value })}
+                                error={!!errors.oratorCompany}
+                                helperText={errors.oratorCompany}
+                                sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
+                            />
+                        </Box>
+
+                        {/* </Box> */}
                     </Box>
-                    <Box {...getRootProps()} sx={{
-                        border: '2px dashed #ccc',
-                        borderRadius: 1,
-                        height: 84,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: { xs: '100%', sm: 100 },
-                        cursor: 'pointer',
-                        objectFit: 'cover',
-                        padding: 0
-                    }}>
-                        <input {...getInputProps()} />
-                        {instructorImage ? (
-                            <img src={instructorImage} alt="Instructor" style={{ objectFit: 'cover', maxWidth: '100%', maxHeight: '100%' }} />
-                        ) : (
-                            <Typography>+</Typography>
-                        )}
-                    </Box>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 2, mb: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="body2">Instructor Company*</Typography>
-                        <TextField
-                            fullWidth
-                            placeholder="Type the instructor company"
-                            value={webinarForm.oratorCompany}
-                            onChange={(e) => setWebinarForm({ ...webinarForm, oratorCompany: e.target.value })}
-                            error={!!errors.oratorCompany}
-                            helperText={errors.oratorCompany}
-                            sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
-                        />
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="body2">Topics*</Typography>
-                        <TextField
-                            fullWidth
-                            placeholder="Type the topic"
-                            value={webinarForm.topicName}
-                            onChange={(e) => setWebinarForm({ ...webinarForm, topicName: e.target.value })}
-                            error={!!errors.topicName}
-                            helperText={errors.topicName}
-                            sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
-                        />
+                    <Box sx={{ display: 'flex', alignContent: "space-between", height: "100%", gap: 2, justifyContent: "flex-start", width: "50%", flexDirection: { xs: 'column', sm: 'column' } }}>
+
+                        <Box sx={{ flex: 1 }}>
+                            <Typography variant="body2">Instructor Image</Typography>
+                            <Box {...getRootProps()} sx={{
+                                border: '2px dashed #ccc',
+                                borderRadius: 4,
+                                height: 100,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: { xs: '100%', sm: 100 },
+                                cursor: 'pointer',
+                                objectFit: 'cover',
+                                padding: 0,
+                            }}>
+                                <input {...getInputProps()} />
+                                {instructorImage ? (
+                                    <img src={instructorImage} alt="Instructor" style={{ objectFit: 'cover', maxWidth: '100%', maxHeight: '100%' }} />
+                                ) : (
+                                    <Typography sx={{ fontWeight: 600, fontSize: 18 }}>+</Typography>
+                                )}
+                            </Box>
+                        </Box>
+
+                        <Box sx={{ flex: 1, mt: 0.5 }}>
+                            <Typography variant="body2">Topics*</Typography>
+                            <TextField
+                                fullWidth
+                                placeholder="Type the topic"
+                                value={webinarForm.topicName}
+                                onChange={(e) => setWebinarForm({ ...webinarForm, topicName: e.target.value })}
+                                error={!!errors.topicName}
+                                helperText={errors.topicName}
+                                sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
+                            />
+                        </Box>
                     </Box>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: "10px" }}>
-                    <img src={webinar} alt="Webinar Icon" style={{ marginRight: '8px', width: '24px', height: '24px' }} />
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>Webinar Details</Typography>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', px: 3, mb: 2, mt: 2, gap: "10px" }}>
+                    <img src={webinar} alt="Webinar Icon" style={{ marginRight: '8px', width: '20px', height: '20px' }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: "#2E333B", fontSize: 15 }}>Webinar Details</Typography>
                 </Box>
 
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{ mb: 2, px: 3, ml: 5 }}>
                     <Typography variant="body2">Webinar Title*</Typography>
                     <TextField
                         fullWidth
@@ -199,8 +249,8 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                     />
                 </Box>
 
-                <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' } }}>
-                    <Box sx={{ flex: 1 }}>
+                <Box sx={{ display: 'flex', ml: 5, gap: 2, mb: 2, px: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
+                    <Box sx={{ flex: 1, maxWidth: "25%" }}>
                         <Typography variant="body2">Start Date*</Typography>
                         <TextField
                             fullWidth
@@ -213,9 +263,15 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                             error={!!errors.date}
                             helperText={errors.date}
                             sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
+                            InputProps={{
+                                inputProps: {
+                                    min: new Date().toISOString().split("T")[0]
+                                }
+                            }}
                         />
+
                     </Box>
-                    <Box sx={{ flex: 1 }}>
+                    <Box sx={{ flex: 1, maxWidth: "25%" }}>
                         <Typography variant="body2">Start Time*</Typography>
                         <TextField
                             fullWidth
@@ -230,12 +286,12 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                                     timeSlot: `${newStartTime12} - ${formatTime12Hour(endTime24)}`
                                 });
                             }}
-                            error={!!errors.timeSlot}
-                            helperText={errors.timeSlot && "Start Time is required"}
+                            error={!!errors.startTime}
+                            helperText={errors.startTime}
                             sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
                         />
                     </Box>
-                    <Box sx={{ flex: 1 }}>
+                    <Box sx={{ flex: 1, maxWidth: "25%" }}>
                         <Typography variant="body2">End Time*</Typography>
                         <TextField
                             fullWidth
@@ -250,14 +306,14 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                                     timeSlot: `${formatTime12Hour(startTime24)} - ${newEndTime12}`
                                 });
                             }}
-                            error={!!errors.timeSlot}
-                            helperText={errors.timeSlot && "End Time is required"}
+                            error={!!errors.endTime}
+                            helperText={errors.endTime}
                             sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
                         />
                     </Box>
                 </Box>
 
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-start' }}>
+                <Box sx={{ mt: 4, mb: 1, display: 'flex', px: 3, justifyContent: 'flex-start' }}>
                     <Button
                         variant="contained"
                         sx={{
@@ -290,6 +346,9 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                 </Box>
             </Box>
         </Modal >
+
+
+
     );
 };
 
