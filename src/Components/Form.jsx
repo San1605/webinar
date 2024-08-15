@@ -250,7 +250,7 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                 </Box>
 
                 <Box sx={{ display: 'flex', ml: 5, gap: 2, mb: 2, px: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
-                    <Box sx={{ flex: 1, maxWidth: "25%" }}>
+                    <Box sx={{ flex: 1,  maxWidth: { xs: "100%", sm: "25%" } }}>
                         <Typography variant="body2">Start Date*</Typography>
                         <TextField
                             fullWidth
@@ -271,7 +271,7 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                         />
 
                     </Box>
-                    <Box sx={{ flex: 1, maxWidth: "25%" }}>
+                    <Box sx={{ flex: 1,  maxWidth: { xs: "100%", sm: "25%" } }}>
                         <Typography variant="body2">Start Time*</Typography>
                         <TextField
                             fullWidth
@@ -291,7 +291,7 @@ const Form = ({ open, setOpen, webinarData = {} }) => {
                             sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f5f5f5' } }}
                         />
                     </Box>
-                    <Box sx={{ flex: 1, maxWidth: "25%" }}>
+                    <Box sx={{ flex: 1,  maxWidth: { xs: "100%", sm: "25%" } }}>
                         <Typography variant="body2">End Time*</Typography>
                         <TextField
                             fullWidth
